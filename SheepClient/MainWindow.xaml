@@ -5,8 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SheepClient"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        Loaded="Window_OnLoaded">
     <Grid>
-        
+        <Canvas Name="cnv">
+            <Image x:Name="SheepPlayer" 
+                   Width="75px" 
+                   Height="75px"
+                   Canvas.Left="0"
+                   Canvas.Top="0"></Image>
+            <Button Name="test" Content="test"></Button>
+        </Canvas>
     </Grid>
 </Window>
