@@ -1,8 +1,13 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Common;
+using Common.Converters;
 
 namespace SheepHucker
 {
@@ -11,46 +16,50 @@ namespace SheepHucker
     /// </summary>
     public partial class MainWindow : Window
     {
-        [DllImport("user32.dll")]
-        public static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
-
-        public const int WM_COMMAND = 0x0112;      // Code for Windows command
-        public const int WM_CLOSE = 0xF060;		 // Command code for close window
-        public const int WM_MOUSEMOVE = 0x0200;
-
         public MainWindow()
         {
             InitializeComponent();
+        }
 
+        [DllImport("user32.dll")]
+        public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr messageParam, IntPtr message);
 
+        private void SendWindowsMessage(string applicationName, int messageCommand, IntPtr messageParam, IntPtr message)
+        {
+            Process[] applications = Process.GetProcessesByName(applicationName);
+            if (applications.Length > 0)
+            {
+                var application = applications[0].MainWindowHandle;
+                PostMessage(application, messageCommand, messageParam, message);
+            }
         }
 
         private void MainWindow_OnMouseMoveMouseMove(object sender, MouseEventArgs e)
         {
             var relativePosition = e.GetPosition(this);
-            var point = PointToScreen(relativePosition); 
-
-            SendMousePosition("SheepClient", WM_MOUSEMOVE, (IntPtr)0, MakeLParam((int)relativePosition.X, (int)relativePosition.Y));
-            // test.Content = point.X + " - " + point.Y;
+            SendWindowsMessage(
+                SheepClientConstants.Name,
+                WindowsMessageCode.MouseMove,
+                IntPtr.Zero,
+                new MouseCoordinatesConverter().Convert(new MousePoint((int)relativePosition.X, (int)relativePosition.Y)));
         }
 
-        public static IntPtr MakeLParam(int wLow, int wHigh)
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            return (IntPtr)(((short)wHigh << 16) | (wLow & 0xffff));
+            SendWindowsMessage(SheepClientConstants.Name, WindowsMessageCode.WindowClose, IntPtr.Zero, IntPtr.Zero);
         }
 
-        private void SendMousePosition(string hWnd, int Msg, IntPtr wParam, IntPtr lParam)
+        private void MainWindow_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            try
+            switch (e.ChangedButton)
             {
-                IntPtr hWndNotepad = Process.GetProcessesByName(hWnd)[0].MainWindowHandle;
-                if (hWndNotepad != null)
-                {
-                    PostMessage(hWndNotepad, Msg, wParam, lParam);
-                }
-            }
-            catch (Exception e)
-            {
+                case MouseButton.Right:
+                    SendWindowsMessage(SheepClientConstants.Name, WindowsMessageCode.WindowClose, WindowsMessageParamCode.RightMouseClick, IntPtr.Zero);
+                    Background = new ImageBrush(new BitmapImage(new Uri($"{AppDomain.CurrentDomain.BaseDirectory}/content/winner.jpg")));
+                    break;
+                case MouseButton.Left:
+                    SendWindowsMessage(SheepClientConstants.Name, WindowsMessageCode.MouseButtonDown, WindowsMessageParamCode.LeftMouseClick, IntPtr.Zero);
+                    break;
             }
         }
     }
