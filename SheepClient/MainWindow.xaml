@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SheepClient"
         mc:Ignorable="d"
-        Title="MainWindow" ResizeMode="NoResize" Height="350" Width="525"
+        Title="Forest" ResizeMode="NoResize" Height="350" Width="525"
         Loaded="Window_OnLoaded">
     <Grid>
         <Canvas Name="cnv">
@@ -14,7 +14,9 @@
                    Height="75px"
                    Canvas.Left="0"
                    Canvas.Top="0"></Image>
-            <Label Name="MouseCoordinates" Content=""></Label>
         </Canvas>
     </Grid>
+    <Window.Background>
+        <ImageBrush ImageSource="content/background.png"></ImageBrush>
+    </Window.Background>
 </Window>

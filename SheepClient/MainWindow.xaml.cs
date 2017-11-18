@@ -41,7 +41,6 @@ namespace SheepClient
             {
                 case WindowsMessageCode.MouseMove:
                     var point = new MouseCoordinatesConverter().Convert(message);
-                    MouseCoordinates.Content = point.X + " -" + point.Y;
                     MoveSheep(point.X, point.Y);
                     break;
                 case WindowsMessageCode.WindowClose:
